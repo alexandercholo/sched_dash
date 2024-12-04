@@ -5,8 +5,9 @@
     </div>
     <ul class="list-unstyled components">
         <li><a href="{{ route('admin.AdminDashboard') }}">Dashboard</a></li>  
-        <li><a href="department.php">Schedule</a></li>
-        <li><a href="course.php">Announcements</a></li>
+        <li><a href="{{ route('schedule.index') }}">Schedule</a></li>
+        <li><a href="{{ route('announcements.index') }}">Announcements</a></li>
+        <li><a href="{{ route('admin.users.index') }}">Notification</a></li>
         <li><a href="{{ route('admin.users.index') }}">Staff</a></li>
     </ul>
     

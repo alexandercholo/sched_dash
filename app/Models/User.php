@@ -8,15 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'username',
         'first_name',
@@ -26,7 +20,26 @@ class User extends Authenticatable
         'password',
         'role',
         'signature_path',
+        'program', // Add program to fillable
     ];
+
+    // Add program constants for better maintainability
+    const PROGRAMS = [
+        'bpa' => 'Bachelor of Performing Arts',
+        'bpubad' => 'Bachelor of Public Administration',
+        'bsbio' => 'Bachelor of Science in Biology',
+        'bsenv' => 'Bachelor of Science in Environmental Science',
+        'bsess' => 'Bachelor of Science in Exercise Sports and Sciences',
+        'bsmath' => 'Bachelor of Science in Mathematics',
+        'bssw' => 'Bachelor of Science in Social Work',
+        'lap' => 'Liberal Arts Program',
+    ];
+
+    // Helper method to get program full name
+    public function getProgramNameAttribute()
+    {
+        return self::PROGRAMS[$this->program] ?? 'Not Assigned';
+    }
 
 
     /**

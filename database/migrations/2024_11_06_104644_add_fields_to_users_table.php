@@ -17,19 +17,22 @@ return new class extends Migration
             $table->string('middle_name')->nullable()->after('first_name');
             $table->string('last_name')->nullable()->after('middle_name');
             $table->string('signature_path')->nullable()->after('remember_token');
+            $table->string('program')->nullable()->after('role'); // Add program field
         });
     }
 
     public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
-                'username',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'signature_path'
-            ]);
-        });
-    }
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropColumn([
+            'username',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'signature_path',
+            'program',
+        ]);
+    });
+}
+
 };

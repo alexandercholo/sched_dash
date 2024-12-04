@@ -222,6 +222,30 @@
         .fade-in {
             animation: fadeIn 0.3s ease forwards;
         }
+
+         /* New styles for the program select */
+         .program-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--text);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .program-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }   
     </style>
 </head>
 <body>
@@ -248,6 +272,26 @@
                                    required
                                    value="{{ old('username') }}">
                             @error('username')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+
+                         <!-- Program Selection -->
+                         <div class="form-group full-width">
+                            <label for="program" class="form-label required">Program</label>
+                            <select name="program" id="program" class="program-select" required>
+                                <option value="">Select a program</option>
+                                <option value="bpa">Bachelor of Performing Arts</option>
+                                <option value="bpubad">Bachelor of Public Administration</option>
+                                <option value="bsbio">Bachelor of Science in Biology</option>
+                                <option value="bsenv">Bachelor of Science in Environmental Science</option>
+                                <option value="bsess">Bachelor of Science in Exercise Sports and Sciences</option>
+                                <option value="bsmath">Bachelor of Science in Mathematics</option>
+                                <option value="bssw">Bachelor of Science in Social Work</option>
+                                <option value="lap">Liberal Arts Program</option>
+                            </select>
+                            @error('program')
                                 <div class="error-message">{{ $message }}</div>
                             @enderror
                         </div>
@@ -365,6 +409,36 @@
     </div>
 
     <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.parentElement.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Add animation when form loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.card');
+            card.classList.add('fade-in');
+        });
+
+        // Enhance file input
+        const fileInput = document.querySelector('.file-input');
+        fileInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                fileInput.style.color = 'var(--text)';
+            }
+        });
+
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const icon = field.parentElement.querySelector('i');

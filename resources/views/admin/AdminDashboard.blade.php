@@ -10,109 +10,163 @@
 <body class="bg-gray-50">
     @include('layouts\admin') 
 
-    <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="px-4 py-6 mx-auto max-w-7xl">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-                <div class="text-gray-600">
-                    <div id="currentTime" class="text-lg font-medium"></div>
-                    <div id="currentDate" class="text-md font-medium"></div>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <!-- Main Content -->
-    <main class="px-4 py-8 mx-auto max-w-7xl">
-        <div class="grid gap-6 md:grid-cols-2">
-        <div class="bg-white rounded-lg shadow-sm">
-    <div class="p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">Schedules</h3>
-        </div>
-        <div class="space-y-4">
-            <!-- Schedule Item 1 -->
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-center min-w-[60px] bg-green-100 rounded-lg p-2">
-                    <span class="text-sm font-medium text-green-600">DEC</span>
-                    <span class="text-2xl font-bold text-green-600">09</span>
-                </div>
-                <div class="flex-1 p-4 border rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Team Meeting</h4>
-                            <p class="text-sm text-gray-500">10:00 AM - 11:00 AM</p>
+    <main class="px-2 py-8">
+        <div class="grid gap-4 md:grid-cols-7">
+            <!-- Stats/Charts Container -->
+            <div class="bg-white rounded-lg shadow-sm md:col-span-2">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Statistics</h3>
+                    </div>
+                    <!-- Sample Stats Cards -->
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-blue-600 font-medium">Total Students</p>
+                                    <h4 class="text-2xl font-bold text-blue-700">1,234</h4>
+                                </div>
+                                <div class="p-2 bg-blue-100 rounded-full">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                        <span class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
-                            Upcoming
-                        </span>
+
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-green-600 font-medium">Active Courses</p>
+                                    <h4 class="text-2xl font-bold text-green-700">42</h4>
+                                </div>
+                                <div class="p-2 bg-green-100 rounded-full">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sample Chart Container -->
+                        <div class="mt-6 h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                            <p class="text-gray-500">Chart Placeholder</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Schedule Item 2 -->
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-center min-w-[60px] bg-green-100 rounded-lg p-2">
-                    <span class="text-sm font-medium text-green-600">DEC</span>
-                    <span class="text-2xl font-bold text-green-600">09</span>
-                </div>
-                <div class="flex-1 p-4 border rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Project Review</h4>
-                            <p class="text-sm text-gray-500">2:00 PM - 3:30 PM</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">
-                            Confirmed
-                        </span>
+            <!-- Schedule Container -->
+            <div class="bg-white rounded-lg shadow-sm md:col-span-2">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Schedules</h3>
                     </div>
-                </div>
-            </div>
+                    
+                    <!-- Real-time date display -->
+                    <div class="text-center mb-6 p-4 border border-green-500 rounded-lg relative overflow-hidden">
+                        <!-- Background Image with Blur -->
+                        <div class="absolute inset-0 z-0">
+                            <img src="{{ asset('images/backgrounds/cas (4).png') }}" alt="" class="w-full h-full object-cover"/>
+                            <div class="absolute inset-0 backdrop-blur-[7px] bg-green-500/25"></div>
+                        </div>
+                        
+                        <!-- Content (with z-index to appear above the background) -->
+                        <div class="relative z-10 flex flex-col items-center">
+                            <!-- Day of Week -->
+                            <div class="text-2xl font-medium text-black mb-1" id="scheduleCurrentDay">Wednesday</div>
+                            
+                            <!-- Time with small AM/PM -->
+                            <div class="flex items-center gap-1 mb-2">
+                                <div class="text-5xl font-bold text-black" id="scheduleCurrentTime">09:40</div>
+                            </div>
+                            
+                            <!-- Date -->
+                            <div class="text-sm font-medium text-black" id="scheduleCurrentMonth">December 4</div>
+                            <div class="text-sm font-medium text-black" id="scheduleCurrentYear">2024</div>
+                        </div>
+                    </div>
 
-            <!-- Schedule Item 3 -->
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-center min-w-[60px] bg-green-100 rounded-lg p-2">
-                    <span class="text-sm font-medium text-green-600">DEC</span>
-                    <span class="text-2xl font-bold text-green-600">10</span>
-                </div>
-                <div class="flex-1 p-4 border rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Team Meeting</h4>
-                            <p class="text-sm text-gray-500">10:00 AM - 11:00 AM</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
-                            Upcoming
-                        </span>
-                    </div>
-                </div>
-            </div>
+                    <div class="space-y-4">
+                        @foreach($scheduleEvents as $event)
+                            <!-- Schedule Item -->
+                            <div class="flex items-center gap-4">
+                                <div class="flex flex-col items-center min-w-[60px] bg-green-100 rounded-lg p-2">
+                                    <span class="text-sm font-medium text-green-600">{{ $event->date->format('M') }}</span>
+                                    <span class="text-2xl font-bold text-green-600">{{ $event->date->format('d') }}</span>
+                                </div>
+                                <div class="flex-1 p-4 border rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">{{ $event->title }}</h4>
+                                            <p class="text-sm text-gray-500">
+                                                {{ $event->start_time->format('g:i A') }} - {{ $event->end_time->format('g:i A') }}
+                                            </p>
+                                        </div>
+                                        <span class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
+                                            Upcoming
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
 
-            <!-- Schedule Item 4 -->
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-center min-w-[60px] bg-green-100 rounded-lg p-2">
-                    <span class="text-sm font-medium text-green-600">DEC</span>
-                    <span class="text-2xl font-bold text-green-600">11</span>
-                </div>
-                <div class="flex-1 p-4 border rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Team Meeting</h4>
-                            <p class="text-sm text-gray-500">10:00 AM - 11:00 AM</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
-                            Upcoming
-                        </span>
+                        <!-- Future Schedule Slots -->
+                        @if(isset($futureSchedules) && $scheduleEvents->count() < 3)
+                            @foreach($futureSchedules as $future)
+                                @if($loop->index < (3 - $scheduleEvents->count()))
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col items-center min-w-[60px] bg-yellow-100 rounded-lg p-2">
+                                        <span class="text-sm font-medium text-yellow-600">{{ $future->date->format('M') }}</span>
+                                        <span class="text-2xl font-bold text-yellow-600">{{ $future->date->format('d') }}</span>
+                                    </div>
+                                    <div class="flex-1 p-4 border border-yellow-200 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">{{ $future->title }}</h4>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ $future->start_time->format('g:i A') }} - {{ $future->end_time->format('g:i A') }}
+                                                </p>
+                                            </div>
+                                            <span class="px-3 py-1 text-xs font-medium text-yellow-600 bg-yellow-100 rounded-full">
+                                                Future Schedule
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                            @endforeach
+                        @else
+                            @for ($i = 0; $i < max(0, 3 - $scheduleEvents->count()); $i++)
+                            <div class="flex items-center gap-4 opacity-50">
+                                <div class="flex flex-col items-center min-w-[60px] bg-gray-100 rounded-lg p-2">
+                                    <span class="text-sm font-medium text-gray-600">--</span>
+                                    <span class="text-2xl font-bold text-gray-600">--</span>
+                                </div>
+                                <div class="flex-1 p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">No Schedule</h4>
+                                            <p class="text-sm text-gray-500">
+                                                No schedule available
+                                            </p>
+                                        </div>
+                                        <span class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            Empty Slot
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endfor
+                        @endif
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
             <!-- Announcements Container -->
-            <div class="bg-white rounded-lg shadow-sm">
+            <div class="bg-white rounded-lg shadow-sm md:col-span-3">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900">Announcements</h3>
@@ -266,6 +320,33 @@
             }
         `;
         document.head.appendChild(slideStyles);
+
+        // Update Schedule Date Display
+        function updateScheduleDateTime() {
+            const now = new Date();
+            
+            // Update Day
+            document.getElementById('scheduleCurrentDay').textContent = 
+                now.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            // Update Time
+            const hours = String(now.getHours() % 12 || 12).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const period = now.getHours() >= 12 ? 'pm' : 'am';
+            
+            document.getElementById('scheduleCurrentTime').textContent = `${hours}:${minutes}`;
+            document.getElementById('scheduleCurrentPeriod').textContent = period;
+            
+            // Update Date
+            document.getElementById('scheduleCurrentMonth').textContent = 
+                now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+            document.getElementById('scheduleCurrentYear').textContent = 
+                now.getFullYear();
+        }
+
+        // Update immediately and then every second
+        updateScheduleDateTime();
+        setInterval(updateScheduleDateTime, 1000);
     </script>
 </body>
 </html>

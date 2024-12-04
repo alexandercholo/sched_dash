@@ -328,6 +328,67 @@
                 gap: 0.5rem;
             }
         }
+    .badge-program {
+            background-color: #f0fdf4;
+            color: #15803d;
+        }
+
+        .editable-cell {
+            position: relative;
+        }
+
+        .editable-content {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+
+        .editable-cell.editing .editable-content {
+            background-color: #f8fafc;
+            border: 2px solid #0ea5e9;
+        }
+
+        .editable-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            outline: none;
+        }
+
+        .btn-save {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #15803d;
+        }
+
+        .btn-cancel {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background-color: #475569;
+        }
+
+        /* Hide inputs by default */
+        .editable-input {
+            display: none;
+        }
+
+        .editable-cell.editing .editable-input {
+            display: block;
+        }
+
+        .editable-cell.editing .editable-text {
+            display: none;
+        }
+        
     </style>
 </head>
 <body>
@@ -348,6 +409,7 @@
                         <tr>
                             <th>Username</th>
                             <th>Name</th>
+                            <th>Program</th>
                             <th>Email</th>
                             <th>Role</th>
                             <th>Signature</th>
@@ -356,43 +418,72 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
-                        <tr class="fade-in">
-                            <td>{{ $user->username }}</td>
-                            <td>{{ $user->fullname }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>
-                                <span class="badge {{ $user->role === 'admin' ? 'badge-admin' : 'badge-user' }}">
-                                    {{ ucfirst($user->role) }}
-                                </span>
-                            </td>
-                            <td>
-                                @if($user->signature_path)
-                                    <a href="{{ asset('storage/' . $user->signature_path) }}" 
-                                       class="signature-link" 
-                                       download>
-                                        <i class="fas fa-signature"></i>
-                                        View Signature
-                                    </a>
-                                @else
-                                    <span class="text-light">No Signature</span>
-                                @endif
-                            </td>
-                            <td>{{ $user->created_at->format('M d, Y') }}</td>
-                            <td class="action-buttons">
-                                <button class="btn-icon btn-edit" 
-                                        onclick="window.location.href='{{ route('admin.users.edit', $user) }}'">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" 
-                                        onclick="showDeleteModal('{{ $user->id }}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        @foreach($users as $user)
+        <tr class="fade-in" data-user-id="{{ $user->id }}">
+            <td class="editable-cell" data-field="username">
+                <div class="editable-content">
+                    <span class="editable-text">{{ $user->username }}</span>
+                    <input type="text" class="editable-input" value="{{ $user->username }}">
+                </div>
+            </td>
+            <td class="editable-cell" data-field="fullname">
+                <div class="editable-content">
+                    <span class="editable-text">{{ $user->fullname }}</span>
+                    <input type="text" class="editable-input" value="{{ $user->fullname }}">
+                </div>
+            </td>
+            <td class="editable-cell" data-field="program">
+    <div class="editable-content">
+        <span class="editable-text">
+            <span class="badge badge-program">
+                {{ $user->program ? config('programs')[$user->program] ?? $user->program : 'Not Assigned' }}
+            </span>
+        </span>
+        <select class="editable-input">
+            <option value="">Not Assigned</option>
+            <option value="bpa" {{ $user->program === 'bpa' ? 'selected' : '' }}>Bachelor of Performing Arts</option>
+            <option value="bpubad" {{ $user->program === 'bpubad' ? 'selected' : '' }}>Bachelor of Public Administration</option>
+            <option value="bsbio" {{ $user->program === 'bsbio' ? 'selected' : '' }}>Bachelor of Science in Biology</option>
+            <option value="bsenv" {{ $user->program === 'bsenv' ? 'selected' : '' }}>Bachelor of Science in Environmental Science</option>
+            <option value="bsess" {{ $user->program === 'bsess' ? 'selected' : '' }}>Bachelor of Science in Exercise Sports and Sciences</option>
+            <option value="bsmath" {{ $user->program === 'bsmath' ? 'selected' : '' }}>Bachelor of Science in Mathematics</option>
+            <option value="bssw" {{ $user->program === 'bssw' ? 'selected' : '' }}>Bachelor of Science in Social Work</option>
+            <option value="lap" {{ $user->program === 'lap' ? 'selected' : '' }}>Liberal Arts Program</option>
+        </select>
+    </div>
+</td>
+            <td class="editable-cell" data-field="email">
+                <div class="editable-content">
+                    <span class="editable-text">{{ $user->email }}</span>
+                    <input type="email" class="editable-input" value="{{ $user->email }}">
+                </div>
+            </td>
+            <td class="editable-cell" data-field="role">
+                <div class="editable-content">
+                    <span class="editable-text">
+                        <span class="badge {{ $user->role === 'admin' ? 'badge-admin' : 'badge-user' }}">
+                            {{ ucfirst($user->role) }}
+                        </span>
+                    </span>
+                    <select class="editable-input">
+                        <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="user" {{ $user->role === 'user' ? 'selected' : '' }}>User</option>
+                    </select>
+                </div>
+            </td>
+            <td>{{ $user->created_at->format('M d, Y') }}</td>
+            <td class="action-buttons">
+                <button class="btn-icon btn-edit" onclick="toggleEdit(this)" data-user-id="{{ $user->id }}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" onclick="showDeleteModal('{{ $user->id }}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
             </div>
             <div class="pagination">
                 {{ $users->links() }}
@@ -425,17 +516,63 @@
 
         function showDeleteModal(userId) {
             modal.style.display = 'flex';
-            modal.classList.add('show');
+            modal.classList.remove('hidden');
             deleteForm.action = `/admin/users/${userId}`;
         }
 
         function closeDeleteModal() {
-            modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
+            modal.classList.add('hidden');
         }
 
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        }
+
+        function toggleEdit(button) {
+            const row = button.closest('tr');
+            const userId = row.dataset.userId;
+            const isEditing = row.classList.contains('editing');
+            const editableCells = row.querySelectorAll('[data-field]');
+
+            if (!isEditing) {
+                row.classList.add('editing');
+                editableCells.forEach(cell => {
+                    const input = cell.querySelector('input, select');
+                    const text = cell.querySelector('.editable-text');
+                    input.classList.remove('hidden');
+                    text.classList.add('hidden');
+                });
+                
+                button.innerHTML = '<i class="fas fa-save"></i>';
+                button.classList.remove('text-blue-600', 'hover:bg-blue-50');
+                button.classList.add('text-green-600', 'hover:bg-green-50');
+                
+                const deleteButton = row.querySelector('.text-red-600');
+                deleteButton.innerHTML = '<i class="fas fa-times"></i>';
+                deleteButton.classList.remove('text-red-600', 'hover:bg-red-50');
+                deleteButton.classList.add('text-slate-600', 'hover:bg-slate-50');
+                deleteButton.onclick = () => cancelEdit(row);
+            } else {
+                saveChanges(row);
+            }
+        }
+
+        function showFlashMessage(message, type) {
+            const flash = document.createElement('div');
+            flash.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${
+                type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            } transition-opacity duration-300`;
+            flash.textContent = message;
+            document.body.appendChild(flash);
+
+            setTimeout(() => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 300);
+            }, 3000);
+        }
+        
         window.onclick = function(event) {
             if (event.target === modal) {
                 closeDeleteModal();
@@ -474,6 +611,205 @@
 
         window.addEventListener('resize', adjustTableResponsiveness);
         adjustTableResponsiveness();
+
+     
+         function toggleEdit(button) {
+        const row = button.closest('tr');
+        const userId = row.dataset.userId;
+        const isEditing = row.classList.contains('editing');
+        const editButton = button;
+        const deleteButton = row.querySelector('.btn-delete');
+        const editableCells = row.querySelectorAll('.editable-cell');
+
+        if (!isEditing) {
+            // Start editing
+            row.classList.add('editing');
+            editableCells.forEach(cell => cell.classList.add('editing'));
+            
+            // Change button icons and classes
+            editButton.innerHTML = '<i class="fas fa-save"></i>';
+            editButton.classList.remove('btn-edit');
+            editButton.classList.add('btn-save');
+            
+            deleteButton.innerHTML = '<i class="fas fa-times"></i>';
+            deleteButton.classList.remove('btn-delete');
+            deleteButton.classList.add('btn-cancel');
+            deleteButton.onclick = () => cancelEdit(row);
+        } else {
+            // Save changes
+            saveChanges(row);
+        }
+    }
+
+    function cancelEdit(row) {
+        // Reset all inputs to original values
+        const editableCells = row.querySelectorAll('.editable-cell');
+        editableCells.forEach(cell => {
+            const input = cell.querySelector('.editable-input');
+            const text = cell.querySelector('.editable-text');
+            input.value = text.textContent.trim();
+            cell.classList.remove('editing');
+        });
+
+        // Reset buttons
+        resetButtons(row);
+        row.classList.remove('editing');
+    }
+
+    function resetButtons(row) {
+        const editButton = row.querySelector('.btn-save');
+        const cancelButton = row.querySelector('.btn-cancel');
+
+        editButton.innerHTML = '<i class="fas fa-edit"></i>';
+        editButton.classList.remove('btn-save');
+        editButton.classList.add('btn-edit');
+
+        cancelButton.innerHTML = '<i class="fas fa-trash"></i>';
+        cancelButton.classList.remove('btn-cancel');
+        cancelButton.classList.add('btn-delete');
+        cancelButton.onclick = () => showDeleteModal(row.dataset.userId);
+    }
+
+    function saveChanges(row) {
+        const userId = row.dataset.userId;
+        const updatedData = {};
+
+        // Collect data from inputs
+        row.querySelectorAll('.editable-cell').forEach(cell => {
+            const field = cell.dataset.field;
+            const input = cell.querySelector('.editable-input');
+            updatedData[field] = input.value;
+        });
+
+        // Send AJAX request to update user
+        fetch(`/admin/users/${userId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(updatedData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the displayed values
+                row.querySelectorAll('.editable-cell').forEach(cell => {
+                    const field = cell.dataset.field;
+                    const text = cell.querySelector('.editable-text');
+                    const input = cell.querySelector('.editable-input');
+                    
+                    if (field === 'role') {
+                        const badge = text.querySelector('.badge');
+                        badge.className = `badge badge-${input.value}`;
+                        badge.textContent = input.value.charAt(0).toUpperCase() + input.value.slice(1);
+                    } else if (field === 'program') {
+                        const badge = text.querySelector('.badge');
+                        badge.textContent = input.value || 'Not Assigned';
+                    } else {
+                        text.textContent = input.value;
+                    }
+                    
+                    cell.classList.remove('editing');
+                });
+
+                // Reset buttons and row state
+                resetButtons(row);
+                row.classList.remove('editing');
+
+                // Show success message
+                showFlashMessage('Changes saved successfully!', 'success');
+            } else {
+                showFlashMessage('Error saving changes.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showFlashMessage('Error saving changes.', 'error');
+        });
+    }
+
+    function showFlashMessage(message, type) {
+        const flash = document.createElement('div');
+        flash.className = `flash-message flash-${type} fade-in`;
+        flash.textContent = message;
+        document.body.appendChild(flash);
+
+        setTimeout(() => {
+            flash.style.opacity = '0';
+            setTimeout(() => flash.remove(), 300);
+        }, 3000);
+    }
     </script>
+
+    <script>
+function saveChanges(row) {
+    const userId = row.dataset.userId;
+    const updatedData = {};
+
+    // Collect data from inputs
+    row.querySelectorAll('.editable-cell').forEach(cell => {
+        const field = cell.dataset.field;
+        const input = cell.querySelector('.editable-input');
+        
+        if (field === 'program') {
+            const select = input;
+            updatedData[field] = select.value;
+            // Get the selected option's text for display
+            const selectedText = select.options[select.selectedIndex].text;
+            cell.querySelector('.badge').textContent = select.value ? selectedText : 'Not Assigned';
+        } else {
+            updatedData[field] = input.value;
+        }
+    });
+
+    // Send AJAX request to update user
+    fetch(`/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the displayed values
+            row.querySelectorAll('.editable-cell').forEach(cell => {
+                const field = cell.dataset.field;
+                const text = cell.querySelector('.editable-text');
+                const input = cell.querySelector('.editable-input');
+                
+                if (field === 'role') {
+                    const badge = text.querySelector('.badge');
+                    badge.className = `badge badge-${input.value}`;
+                    badge.textContent = input.value.charAt(0).toUpperCase() + input.value.slice(1);
+                } else if (field === 'program') {
+                    // Program badge is already updated above
+                    cell.classList.remove('editing');
+                } else {
+                    text.textContent = input.value;
+                }
+                
+                cell.classList.remove('editing');
+            });
+
+            // Reset buttons and row state
+            resetButtons(row);
+            row.classList.remove('editing');
+
+            // Show success message
+            showFlashMessage('Changes saved successfully!', 'success');
+        } else {
+            showFlashMessage('Error saving changes.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showFlashMessage('Error saving changes.', 'error');
+    });
+}
+</script>
 </body>
 </html>
