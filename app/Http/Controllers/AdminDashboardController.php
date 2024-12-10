@@ -32,5 +32,11 @@ class AdminDashboardController extends Controller
             'scheduleEvents',
             'announcements'
         ));
+
+        $announcements = Announcement::latest()
+        ->whereDate('target_date', '>=', now())
+        ->get();
+        
+    return view('admin.AdminDashboard', compact('announcements'));
     }
 } 

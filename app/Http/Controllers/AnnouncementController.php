@@ -19,7 +19,7 @@ class AnnouncementController extends Controller
 
     public function index()
     {
-        $announcements = Announcement::with('users')->orderBy('target_date', 'desc')->get();
+        $announcements = Announcement::orderBy('target_date', 'desc')->get();
         $totalAnnouncements = Announcement::count();
         $activeAnnouncements = Announcement::where('target_date', '>=', now())->count();
 
@@ -46,13 +46,44 @@ class AnnouncementController extends Controller
                 'title' => 'required|string|max:255',
                 'program' => 'required|string',
                 'content' => 'required|string|max:150',
-                'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+                'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:500480',
                 'display_duration' => 'required|integer|min:1',
                 'target_date' => 'required|date|after_or_equal:today',
-                'digital_signature' => 'required|string',
+                'signature_text' => 'required_without:signature_image',
+                'signature_image' => 'required_without:signature_text|nullable|file|mimes:jpeg,png,jpg|max:20480',
             ]);
 
-            // Create announcement logic here...
+            // Create new announcement
+            $announcement = new Announcement();
+            $announcement->email = $validated['email'];
+            $announcement->title = $validated['title'];
+            $announcement->program = $validated['program'];
+            $announcement->content = $validated['content'];
+            $announcement->display_duration = $validated['display_duration'];
+            $announcement->target_date = $validated['target_date'];
+
+            // Handle signature (either text or image)
+            if ($request->hasFile('signature_image')) {
+                $signatureFile = $request->file('signature_image');
+                $signaturePath = $signatureFile->store('signatures', 'public');
+                $announcement->digital_signature = $signaturePath;
+            } else {
+                $announcement->digital_signature = $validated['signature_text'];
+            }
+
+            // Handle media upload if present
+            if ($request->hasFile('media')) {
+                $file = $request->file('media');
+                $path = $file->store('announcements', 'public');
+                $announcement->media_path = $path;
+                $announcement->media_type = $file->getMimeType();
+                
+                if (str_starts_with($file->getMimeType(), 'video')) {
+                    $announcement->video_length = $request->input('video_length', 0);
+                }
+            }
+
+            $announcement->save();
 
             return response()->json(['success' => true, 'message' => 'Announcement created successfully']);
         } catch (\Exception $e) {
@@ -67,7 +98,7 @@ class AnnouncementController extends Controller
             'content' => 'required|string',
             'program' => 'required|string',
             'target_date' => 'required|date',
-            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov|max:500480'
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,MP4|max:500480'
         ]);
 
         $announcement->title = $validated['title'];
@@ -167,7 +198,7 @@ class AnnouncementController extends Controller
 
     public function getFeatured()
     {
-        $announcements = Announcement::with('users')->orderBy('target_date', 'desc')->get();
+        $announcements = Announcement::orderBy('target_date', 'desc')->get();
         return view('announcements.featured', compact('announcements'));
     }
 
@@ -181,7 +212,7 @@ class AnnouncementController extends Controller
 
     public function getLatest()
     {
-        $announcement = Announcement::with('users')->orderBy('created_at', 'desc')->first();
+        $announcement = Announcement::orderBy('created_at', 'desc')->first();
         return response()->json([
             'announcement' => $announcement
         ]);

@@ -290,6 +290,72 @@
     border: 1px solid #84cc16;
     background-color: #ecfccb;
 }
+
+.media-container {
+    width: 60%;
+    height: 360px; /* Fixed height for 16:9 ratio (640x360) */
+    position: relative;
+    overflow: hidden;
+}
+
+.content-container {
+    width: 40%;
+    padding-left: 1rem;
+    height: 360px; /* Match media container height */
+}
+
+.media-aspect-ratio {
+    position: relative;
+    width: 640px; /* Fixed width */
+    height: 360px; /* Fixed height - 16:9 ratio */
+    margin: 0 auto;
+}
+
+.media-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Changed to contain to maintain aspect ratio */
+    border-radius: 0.5rem;
+    background-color: #000; /* Black background for letterboxing */
+}
+
+.featured-slideshow {
+    display: flex;
+    height: 360px;
+    background-color: #fff;
+}
+
+/* Ensure slides maintain aspect ratio */
+.announcement-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* Media queries for responsive scaling while maintaining 16:9 */
+@media (max-width: 1280px) {
+    .media-aspect-ratio {
+        width: 480px;
+        height: 270px;
+    }
+    .media-container, .content-container, .featured-slideshow {
+        height: 270px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .media-aspect-ratio {
+        width: 400px;
+        height: 225px;
+    }
+    .media-container, .content-container, .featured-slideshow {
+        height: 225px;
+    }
+}
     </style>
 </head>
 <body class="bg-white min-h-screen">
@@ -328,7 +394,7 @@
                                 </button>
                                 <button onclick="showTab('past-announcements')"
                                         class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-lime-500">
-                                    Past Announcements
+                                    Completed Announcements
                                 </button>
                             </div>
                         </div>
@@ -344,111 +410,105 @@
         <div id="featured-tab" class="tab-content">
             <!-- Featured Content -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <!-- Media and Content Container -->
+                <!-- Combined Media and Content Container -->
                 <div class="lg:col-span-3">
-                    <div class="flex flex-col lg:flex-row gap-4">
-                        <!-- Media Container with fixed height -->
-                        <div class="lg:w-2/3">
-                            <div class="bg-white rounded-xl shadow-sm p-4 featured-content-border min-h-[400px]">
-                                @if($announcements->count() > 0)
-                                    <div class="featured-slideshow h-full">
-                                        @foreach($announcements as $index => $announcement)
-                                            <div class="announcement-slide fade {{ $index === 0 ? 'active' : '' }}" 
-                                                 data-duration="{{ str_starts_with($announcement->media_type, 'video') ? ($announcement->video_length * 1000) : 10000 }}">
-                                                <!-- Media Section - 16:9 aspect ratio -->
-                                                <div class="relative w-full bg-lime-50 rounded-lg mb-3" style="padding-top: 40%;">
-                                                    @if($announcement->media_path)
-                                                        @if(str_starts_with($announcement->media_type, 'image'))
-                                                            <img src="{{ asset('storage/' . $announcement->media_path) }}" 
-                                                                 class="absolute top-0 left-0 w-full h-full object-cover rounded-lg" 
-                                                                 alt="Announcement media">
-                                                        @elseif(str_starts_with($announcement->media_type, 'video'))
-                                                            <video class="absolute top-0 left-0 w-full h-full object-cover rounded-lg" controls>
-                                                                <source src="{{ asset('storage/' . $announcement->media_path) }}" 
-                                                                        type="{{ $announcement->media_type }}">
-                                                            </video>
-                                                        @endif
-                                                    @else
-                                                        <img src="{{ asset('images/backgrounds/cas (1).png') }}" 
-                                                             class="absolute top-0 left-0 w-full h-full object-cover rounded-lg" 
-                                                             alt="Default announcement image">
+                    <div class="bg-white rounded-xl shadow-sm p-4 featured-content-border min-h-[400px]">
+                        @php
+                            $activeAnnouncements = $announcements->filter(function($announcement) {
+                                $targetDate = Carbon\Carbon::parse($announcement->target_date)->startOfDay();
+                                $now = now()->startOfDay();
+                                return $targetDate->equalTo($now) || $targetDate->greaterThan($now);
+                            })->sortBy('target_date');
+                        @endphp
+                        
+                        @if($activeAnnouncements->count() > 0)
+                            <div class="featured-slideshow">
+                                <!-- Media Section (Left side) -->
+                                <div class="media-container">
+                                    @foreach($activeAnnouncements as $index => $announcement)
+                                        <div class="announcement-slide fade {{ $index === 0 ? 'active' : '' }}" 
+                                             data-duration="{{ str_starts_with($announcement->media_type, 'video') ? ($announcement->video_length * 1000) : 10000 }}">
+                                            <div class="media-aspect-ratio">
+                                                @if($announcement->media_path)
+                                                    @if(str_starts_with($announcement->media_type, 'image'))
+                                                        <img src="{{ asset('storage/' . $announcement->media_path) }}" 
+                                                             class="media-content" 
+                                                             alt="Announcement media">
+                                                    @elseif(str_starts_with($announcement->media_type, 'video'))
+                                                        <video class="media-content" controls>
+                                                            <source src="{{ asset('storage/' . $announcement->media_path) }}" 
+                                                                    type="{{ $announcement->media_type }}">
+                                                        </video>
                                                     @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    <!-- Navigation Dots -->
-                                    <div class="flex justify-center space-x-1.5 mt-3">
-                                        @foreach($announcements as $index => $announcement)
-                                            <button onclick="showSlide({{ $index }})" 
-                                                    class="h-1.5 w-1.5 rounded-full transition-colors duration-200 dot {{ $index === 0 ? 'bg-black' : 'bg-gray-300' }}">
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <div class="h-full flex items-center justify-center">
-                                        <div class="text-center">
-                                            <i class="fas fa-bullhorn text-gray-300 text-5xl mb-4"></i>
-                                            <p class="text-gray-500">No announcements available</p>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Content Section with fixed height -->
-                        <div class="lg:w-1/3">
-                            <div class="announcement-content-container h-[400px] p-4 rounded-lg hover:border-lime-200 transition-colors duration-200 bg-white shadow-sm overflow-hidden">
-                                @if($announcements->count() > 0)
-                                    @foreach($announcements as $index => $announcement)
-                                        <div class="h-full p-4 rounded-lg hover:border-lime-200 transition-colors duration-200 bg-white shadow-sm {{ $index === 0 ? 'block' : 'hidden' }} flex flex-col" data-slide-content="{{ $index }}">
-                                            <!-- Content Wrapper with scrollable content -->
-                                            <div class="flex-1 overflow-y-auto">
-                                                <!-- Program Badge -->
-                                                <div class="mb-3 sticky top-0 bg-white pt-1">
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-lime-50 text-green-800 border border-lime-100">
-                                                        <i class="fas fa-university mr-2"></i>
-                                                        {{ $announcement->program }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- Title -->
-                                                <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                                                    {{ $announcement->title }}
-                                                </h3>
-
-                                                <!-- Content -->
-                                                <p class="text-sm text-gray-600">
-                                                    {{ $announcement->content }}
-                                                </p>
-                                            </div>
-
-                                            <!-- Fixed Footer -->
-                                            <div class="mt-auto pt-3 bg-white">
-                                                <div class="flex justify-between items-center text-xs text-gray-500 pt-3 border-t border-gray-100">
-                                                    <span class="flex items-center">
-                                                        <i class="far fa-calendar-alt mr-1"></i>
-                                                        Posted: {{ $announcement->created_at->format('M d, Y') }}
-                                                    </span>
-                                                    <span class="flex items-center">
-                                                        <i class="far fa-clock mr-1"></i>
-                                                        Target: {{ $announcement->target_date->format('M d, Y') }}
-                                                    </span>
-                                                </div>
+                                                @else
+                                                    <img src="{{ asset('images/backgrounds/cas (1).png') }}" 
+                                                         class="media-content" 
+                                                         alt="Default announcement image">
+                                                @endif
                                             </div>
                                         </div>
                                     @endforeach
-                                @else
-                                    <div class="h-full flex items-center justify-center">
-                                        <div class="text-center">
-                                            <i class="fas fa-file-alt text-gray-300 text-5xl mb-4"></i>
-                                            <p class="text-gray-500">No content available</p>
-                                        </div>
+                                </div>
+
+                                <!-- Content Section (Right side) -->
+                                <div class="content-container">
+                                    <div class="h-full rounded-lg bg-white shadow-sm overflow-hidden">
+                                        @foreach($activeAnnouncements as $index => $announcement)
+                                            <div class="h-full p-4 rounded-lg hover:border-lime-200 transition-colors duration-200 bg-white shadow-sm {{ $index === 0 ? 'block' : 'hidden' }} flex flex-col" data-slide-content="{{ $index }}">
+                                                <div class="flex-1 overflow-y-auto">
+                                                    <!-- Program Badge -->
+                                                    <div class="mb-3 sticky top-0 bg-white pt-1">
+                                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-lime-50 text-green-800 border border-lime-100">
+                                                            <i class="fas fa-university mr-2"></i>
+                                                            {{ $announcement->program }}
+                                                        </span>
+                                                    </div>
+                                                    <!-- Title -->
+                                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                                        {{ $announcement->title }}
+                                                    </h3>
+
+                                                    <!-- Content -->
+                                                    <p class="text-sm text-gray-600">
+                                                        {{ $announcement->content }}
+                                                    </p>
+                                                </div>
+
+                                                <!-- Fixed Footer -->
+                                                <div class="mt-auto pt-3 bg-white">
+                                                    <div class="flex justify-between items-center text-xs text-gray-500 pt-3 border-t border-gray-100">
+                                                        <span class="flex items-center">
+                                                            <i class="far fa-calendar-alt mr-1"></i>
+                                                            Posted: {{ $announcement->created_at->format('M d, Y') }}
+                                                        </span>
+                                                        <span class="flex items-center">
+                                                            <i class="far fa-clock mr-1"></i>
+                                                            Target: {{ $announcement->target_date->format('M d, Y') }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @endif
+                                </div>
                             </div>
-                        </div>
+
+                            <!-- Navigation Dots -->
+                            <div class="flex justify-center space-x-1.5 mt-3">
+                                @foreach($activeAnnouncements as $index => $announcement)
+                                    <button onclick="showSlide({{ $index }})" 
+                                            class="h-1.5 w-1.5 rounded-full transition-colors duration-200 dot {{ $index === 0 ? 'bg-black' : 'bg-gray-300' }}">
+                                    </button>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="h-full flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-bullhorn text-gray-300 text-5xl mb-4"></i>
+                                    <p class="text-gray-500">No active announcements available</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -650,16 +710,20 @@
     <!-- Create Announcement Modal -->
     <div id="announcementModal" class="modal">
         <div class="modal-content">
-            <div id="uploadProgress" class="hidden">
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                    <div id="uploadProgressBar" 
-                         class="bg-lime-500 h-2.5 rounded-full transition-all duration-300" 
+            <!-- Add a new progress container at the top of the modal -->
+            <div id="submitProgress" class="hidden px-6 py-3 bg-gray-50 border-b">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm text-gray-600">Submitting announcement...</span>
+                    <span id="submitProgressPercent" class="text-sm font-medium text-lime-600">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="submitProgressBar" 
+                         class="bg-lime-500 h-2 rounded-full transition-all duration-300" 
                          style="width: 0%">
                     </div>
                 </div>
-                <p id="uploadStatus" class="text-sm text-gray-600 text-center"></p>
             </div>
-            
+
             <div class="modal-header">
                 <h3 class="text-lg font-semibold text-gray-900">Create New Announcement</h3>
                 <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
@@ -668,24 +732,29 @@
             </div>
             <div class="modal-body">
                 <!-- Update the form to use multipart/form-data and add proper enctype -->
-                <form id="announcementForm" action="{{ route('announcements.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('announcements.store') }}" method="POST" enctype="multipart/form-data" class="p-6" id="announcementForm">
                     @csrf
                     <div class="space-y-4">
-                        <!-- Add name attribute to all form fields -->
-                        <div class="form-group">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" required class="form-input">
+                        <!-- Requester Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">Requester Name</label>
+                                <input type="text" name="requester_name" required 
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                            </div>
+                            <div>
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" required 
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Title</label>
-                            <input type="text" name="title" required class="form-input">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Program</label>
-                            <select name="program" required class="form-input">
-                                <option value="">Select a program</option>
+                        <!-- Department Selection -->
+                        <div>
+                            <label class="form-label">Department</label>
+                            <select name="program" required 
+                                class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                                <option value="">Select Department</option>
                                 <option value="Bachelor of Performing Arts">Bachelor of Performing Arts</option>
                                 <option value="Bachelor of Public Administration">Bachelor of Public Administration</option>
                                 <option value="Bachelor of Science in Biology">Bachelor of Science in Biology</option>
@@ -696,109 +765,138 @@
                             </select>
                         </div>
 
-                        <!-- Update the JavaScript event handler -->
-                        <script>
-                            document.getElementById('announcementForm').addEventListener('submit', function(e) {
-                                e.preventDefault();
-                                
-                                const formData = new FormData(this);
-                                const submitButton = this.querySelector('button[type="submit"]');
-                                const progressContainer = document.getElementById('uploadProgress');
-                                const progressBar = document.getElementById('uploadProgressBar');
-                                const statusText = document.getElementById('uploadStatus');
-                                
-                                // Show progress bar and disable submit button
-                                progressContainer.classList.remove('hidden');
-                                submitButton.disabled = true;
-                                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                                
-                                // Simulate upload progress for files
-                                let progress = 0;
-                                const hasFiles = formData.has('media') && formData.get('media').size > 0;
-                                
-                                const progressInterval = hasFiles ? setInterval(() => {
-                                    if (progress < 90) {
-                                        progress += Math.random() * 10;
-                                        progressBar.style.width = `${Math.min(progress, 90)}%`;
-                                        statusText.textContent = `Uploading... ${Math.round(Math.min(progress, 90))}%`;
-                                    }
-                                }, 500) : null;
-                                
-                                fetch(this.action, {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'Accept': 'application/json'
-                                    },
-                                    credentials: 'same-origin'
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Network response was not ok');
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    // Clear interval and show completion
-                                    if (progressInterval) clearInterval(progressInterval);
-                                    progressBar.style.width = '100%';
-                                    statusText.textContent = 'Upload complete!';
-                                    
-                                    setTimeout(() => {
-                                        if (data.success) {
-                                            closeModal();
-                                            this.reset();
-                                            location.reload();
-                                        } else {
-                                            const errorMessages = document.getElementById('errorMessages');
-                                            errorMessages.classList.remove('hidden');
-                                            errorMessages.innerHTML = `<p class="text-red-500">${data.message || 'An error occurred'}</p>`;
-                                        }
-                                    }, 500);
-                                })
-                                .catch(error => {
-                                    // Clear interval and show error
-                                    if (progressInterval) clearInterval(progressInterval);
-                                    progressBar.style.width = '0%';
-                                    statusText.textContent = 'Upload failed';
-                                    statusText.classList.add('text-red-500');
-                                    
-                                    console.error('Error:', error);
-                                    const errorMessages = document.getElementById('errorMessages');
-                                    errorMessages.classList.remove('hidden');
-                                    errorMessages.innerHTML = '<p class="text-red-500">An error occurred while creating the announcement.</p>';
-                                })
-                                .finally(() => {
-                                    // Reset button state after a delay
-                                    setTimeout(() => {
-                                        submitButton.disabled = false;
-                                        submitButton.innerHTML = 'Create Announcement';
-                                        progressContainer.classList.add('hidden');
-                                        progressBar.style.width = '0%';
-                                        statusText.textContent = '';
-                                        statusText.classList.remove('text-red-500');
-                                    }, 1000);
-                                });
-                            });
-                            
-                            // Add this function to reset the progress bar when closing the modal
-                            function closeModal() {
-                                const modal = document.getElementById('announcementModal');
-                                const progressContainer = document.getElementById('uploadProgress');
-                                const progressBar = document.getElementById('uploadProgressBar');
-                                const statusText = document.getElementById('uploadStatus');
-                                
-                                modal.classList.remove('show');
-                                document.body.style.overflow = 'auto';
-                                
-                                // Reset progress elements
-                                progressContainer.classList.add('hidden');
-                                progressBar.style.width = '0%';
-                                statusText.textContent = '';
-                                statusText.classList.remove('text-red-500');
-                            }
-                        </script>
+                        <!-- Announcement Details -->
+                        <div>
+                            <label class="form-label">Announcement Title</label>
+                            <input type="text" name="title" required 
+                                class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Announcement Content</label>
+                            <textarea name="content" rows="4" required 
+                                class="form-input focus:ring-custom-lime focus:border-custom-lime"
+                                onkeyup="updateCharacterCount(this)"></textarea>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span id="charCount">0</span>/150 characters
+                            </div>
+                        </div>
+
+                        <!-- Media Upload and Duration -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="form-label">Media Upload</label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-custom-lime">
+                                    <div class="space-y-1 text-center">
+                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-3"></i>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label class="relative cursor-pointer bg-white rounded-md font-medium text-custom-lime hover:text-custom-lime-600">
+                                                <span>Upload a file</span>
+                                                <input type="file" name="media" class="sr-only" accept="image/*,video/*" id="mediaInput" onchange="handleMediaUpload(this)">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 up to 10MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display Duration Field -->
+                            <div>
+                                <label class="form-label">Display Duration (in seconds)</label>
+                                <input type="number" name="display_duration" required min="1" max="300"
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime"
+                                    placeholder="Enter duration in seconds (1-300)">
+                                <p class="text-xs text-gray-500 mt-1">For images: How long to display. For videos: Will be set automatically.</p>
+                            </div>
+
+                            <!-- Video Duration Field (Hidden by default) -->
+                            <div id="videoDurationField" class="hidden">
+                                <label class="form-label">Video Length</label>
+                                <input type="text" id="videoLength" name="video_length" readonly
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                                <p class="text-xs text-gray-500 mt-1">Duration: <span id="durationDisplay">0:00</span></p>
+                            </div>
+
+                            <!-- Upload Progress -->
+                            <div id="uploadProgress" class="hidden mt-2">
+                                <div class="bg-gray-200 rounded-full h-2.5">
+                                    <div id="uploadProgressBar" class="bg-custom-lime h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p id="uploadStatus" class="text-sm mt-1"></p>
+                            </div>
+                        </div>
+
+                        <!-- Target Date and Priority -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">Target Date</label>
+                                <input type="date" name="target_date" required 
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime"
+                                    onchange="validateTargetDate(this)">
+                            </div>
+                            <div>
+                                <label class="form-label">Priority Level</label>
+                                <select name="priority" required 
+                                    class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Digital Signature -->
+                        <div>
+                            <label class="form-label">Digital Signature</label>
+                            <div class="space-y-4">
+                                <!-- Signature Type Toggle -->
+                                <div class="flex space-x-4">
+                                    <button type="button" onclick="toggleSignatureType('text')"
+                                            class="px-3 py-1 rounded-lg text-sm signature-toggle active"
+                                            id="textSignatureBtn">
+                                        Type Signature
+                                    </button>
+                                    <button type="button" onclick="toggleSignatureType('image')"
+                                            class="px-3 py-1 rounded-lg text-sm signature-toggle"
+                                            id="imageSignatureBtn">
+                                        Upload Signature
+                                    </button>
+                                </div>
+
+                                <!-- Text Signature Input -->
+                                <div id="textSignatureInput">
+                                    <input type="text" 
+                                           name="signature_text" 
+                                           placeholder="Type your signature" 
+                                           class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                                </div>
+
+                                <!-- Image Signature Input -->
+                                <div id="imageSignatureInput" class="hidden">
+                                    <input type="file" 
+                                           name="signature_image" 
+                                           accept="image/*" 
+                                           class="form-input focus:ring-custom-lime focus:border-custom-lime">
+                                    <p class="text-xs text-gray-500 mt-1">Upload a signature image (PNG, JPG)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Messages -->
+                        <div id="errorMessages" class="hidden text-red-500 text-sm"></div>
+
+                        <!-- Form Buttons -->
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="reset" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                Clear Form
+                            </button>
+                            <button type="submit" 
+                                class="px-4 py-2 bg-custom-lime text-white rounded-lg hover:bg-custom-lime-600">
+                                Submit Announcement
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -919,15 +1017,23 @@
                 
                 // Filter announcements based on date
                 const today = new Date();
+                today.setHours(0, 0, 0, 0); // Set to start of day
                 const announcements = document.querySelectorAll('.mb-6.bg-white.border.rounded-lg');
                 
                 announcements.forEach(announcement => {
                     const targetDateElement = announcement.querySelector('.text-gray-600 span:last-child');
-                    const targetDate = new Date(targetDateElement.textContent.replace('Target: ', ''));
+                    if (!targetDateElement) return;
+                    
+                    // Extract the date string and parse it
+                    const dateStr = targetDateElement.textContent.trim();
+                    const targetDate = new Date(dateStr.replace('Target: ', ''));
+                    targetDate.setHours(0, 0, 0, 0); // Set to start of day
                     
                     if (tabName === 'latest-announcements') {
+                        // Show announcements with target dates today or in the future
                         announcement.style.display = targetDate >= today ? 'flex' : 'none';
                     } else {
+                        // Show announcements with target dates in the past
                         announcement.style.display = targetDate < today ? 'flex' : 'none';
                     }
                 });
@@ -954,30 +1060,45 @@
             e.preventDefault();
             
             const formData = new FormData(this);
-            const mediaInput = document.getElementById('mediaInput');
+            const submitProgress = document.getElementById('submitProgress');
+            const submitProgressBar = document.getElementById('submitProgressBar');
+            const submitProgressPercent = document.getElementById('submitProgressPercent');
+            const submitButton = this.querySelector('button[type="submit"]');
             const errorMessages = document.getElementById('errorMessages');
             
             // Clear previous error messages
             errorMessages.innerHTML = '';
             errorMessages.classList.add('hidden');
             
-            // Add CSRF token
-            formData.append('_token', '{{ csrf_token() }}');
-            
-            // Handle video duration
-            if (mediaInput.files[0] && mediaInput.files[0].type.startsWith('video/')) {
-                const videoLengthInput = document.getElementById('videoLength');
-                // Use the data-duration attribute that was set during upload
-                if (videoLengthInput.dataset.duration) {
-                    formData.set('video_length', Math.ceil(videoLengthInput.dataset.duration / 1000 / 60)); // Convert ms to minutes
-                }
-            }
-
-            // Show loading state
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
+            // Show progress bar
+            submitProgress.classList.remove('hidden');
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            // Simulate progress steps
+            let progress = 0;
+            const progressSteps = [
+                { percent: 15, message: 'Validating form...' },
+                { percent: 30, message: 'Processing media...' },
+                { percent: 60, message: 'Uploading content...' },
+                { percent: 85, message: 'Finalizing...' },
+                { percent: 100, message: 'Complete!' }
+            ];
+            
+            let currentStep = 0;
+            
+            const updateProgress = () => {
+                if (currentStep < progressSteps.length) {
+                    const step = progressSteps[currentStep];
+                    progress = step.percent;
+                    submitProgressBar.style.width = `${progress}%`;
+                    submitProgressPercent.textContent = `${progress}%`;
+                    currentStep++;
+                }
+            };
+
+            // Start progress animation
+            const progressInterval = setInterval(updateProgress, 800);
             
             fetch(this.action, {
                 method: 'POST',
@@ -989,14 +1110,31 @@
             })
             .then(response => response.json())
             .then(data => {
+                clearInterval(progressInterval);
+                
+                // Set progress to 100% on success
+                submitProgressBar.style.width = '100%';
+                submitProgressPercent.textContent = '100%';
+                
                 if (data.success) {
-                    // Success handling
-                    closeModal();
-                    this.reset();
-                    location.reload(); // Refresh the page to show new announcement
-                    alert('Announcement created successfully!');
+                    // Add success state to progress bar
+                    submitProgressBar.classList.add('bg-green-500');
+                    
+                    // Show success message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'text-sm text-green-600 mt-2 text-center';
+                    successMessage.textContent = 'Announcement created successfully!';
+                    submitProgress.appendChild(successMessage);
+                    
+                    // Close modal and refresh after delay
+                    setTimeout(() => {
+                        closeModal();
+                        this.reset();
+                        location.reload();
+                    }, 1500);
                 } else {
-                    // Error handling
+                    // Handle error state
+                    submitProgressBar.classList.add('bg-red-500');
                     errorMessages.classList.remove('hidden');
                     if (typeof data.message === 'string') {
                         errorMessages.innerHTML = `<p class="text-red-500">${data.message}</p>`;
@@ -1006,17 +1144,18 @@
                             .map(error => `<p class="text-red-500">${error}</p>`)
                             .join('');
                     }
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Submit Announcement';
                 }
             })
             .catch(error => {
+                clearInterval(progressInterval);
+                submitProgressBar.classList.add('bg-red-500');
                 console.error('Error:', error);
                 errorMessages.classList.remove('hidden');
                 errorMessages.innerHTML = '<p class="text-red-500">An error occurred while creating the announcement.</p>';
-            })
-            .finally(() => {
-                // Reset button state
                 submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
+                submitButton.innerHTML = 'Submit Announcement';
             });
         });
 
@@ -1103,43 +1242,47 @@
             const videoDurationField = document.getElementById('videoDurationField');
             const videoLengthInput = document.getElementById('videoLength');
             const durationDisplay = document.getElementById('durationDisplay');
+            const displayDurationInput = document.querySelector('input[name="display_duration"]');
             
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 
                 if (file.type.startsWith('video/')) {
                     videoDurationField.style.display = 'block';
+                    displayDurationInput.readOnly = true;
                     
                     // Create video element to get duration
                     const video = document.createElement('video');
                     video.preload = 'metadata';
                     
                     video.onloadedmetadata = function() {
-                        const exactDuration = video.duration;
-                        const minutes = Math.floor(exactDuration / 60);
-                        const seconds = Math.floor(exactDuration % 60);
+                        const durationInSeconds = Math.ceil(video.duration);
+                        const minutes = Math.floor(durationInSeconds / 60);
+                        const seconds = durationInSeconds % 60;
                         
-                        // Format duration display
+                        // Format duration display for UI
                         const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                        durationDisplay.textContent = `${formattedDuration} (${minutes} min ${seconds} sec)`;
+                        durationDisplay.textContent = formattedDuration;
                         
-                        // Store exact duration in milliseconds
-                        videoLengthInput.value = formattedDuration;
-                        videoLengthInput.dataset.duration = Math.floor(exactDuration * 1000);
+                        // Set the display duration to match video length
+                        displayDurationInput.value = durationInSeconds;
+                        
+                        // Store duration in seconds for database
+                        videoLengthInput.value = durationInSeconds;
+                        videoLengthInput.dataset.duration = durationInSeconds;
                         
                         URL.revokeObjectURL(video.src);
                     };
                     
                     video.src = URL.createObjectURL(file);
                 } else {
+                    // Reset for images
                     videoDurationField.style.display = 'none';
+                    displayDurationInput.readOnly = false;
+                    displayDurationInput.value = '';
                     videoLengthInput.value = '';
                     durationDisplay.textContent = '0:00';
                 }
-            } else {
-                videoDurationField.style.display = 'none';
-                videoLengthInput.value = '';
-                durationDisplay.textContent = '0:00';
             }
         }
 
@@ -1362,14 +1505,17 @@
 
         // Add validation to form submission
         document.getElementById('announcementForm').addEventListener('submit', function(e) {
-            const targetDate = document.getElementById('targetDate');
-            if (!targetDate.value) {
-                e.preventDefault();
-                alert('Please select a target date');
-                targetDate.focus();
-                return false;
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Ensure video_length is sent as a number
+            const videoLengthInput = document.getElementById('videoLength');
+            if (videoLengthInput && videoLengthInput.value) {
+                formData.set('video_length', parseInt(videoLengthInput.value));
             }
-            // ... rest of your form submission code ...
+            
+            // Rest of your form submission code...
         });
 
         function toggleDropdown() {
@@ -1384,6 +1530,36 @@
                 }
             });
         }
+
+        function toggleSignatureType(type) {
+            const textInput = document.getElementById('textSignatureInput');
+            const imageInput = document.getElementById('imageSignatureInput');
+            const textBtn = document.getElementById('textSignatureBtn');
+            const imageBtn = document.getElementById('imageSignatureBtn');
+            
+            // Reset form inputs
+            textInput.querySelector('input').required = false;
+            imageInput.querySelector('input').required = false;
+            
+            if (type === 'text') {
+                textInput.classList.remove('hidden');
+                imageInput.classList.add('hidden');
+                textInput.querySelector('input').required = true;
+                textBtn.classList.add('bg-lime-100', 'text-lime-700');
+                imageBtn.classList.remove('bg-lime-100', 'text-lime-700');
+            } else {
+                textInput.classList.add('hidden');
+                imageInput.classList.remove('hidden');
+                imageInput.querySelector('input').required = true;
+                imageBtn.classList.add('bg-lime-100', 'text-lime-700');
+                textBtn.classList.remove('bg-lime-100', 'text-lime-700');
+            }
+        }
+
+        // Initialize signature type toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleSignatureType('text'); // Default to text signature
+        });
     </script>
 </body>
 </html>

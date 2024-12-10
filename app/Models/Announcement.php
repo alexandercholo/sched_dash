@@ -7,28 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 class Announcement extends Model
 {
     protected $fillable = [
-        'email',
         'title',
-        'program',
         'content',
+        'program',
         'media_path',
         'media_type',
-        'video_length',
         'target_date',
-        'display_duration',
         'digital_signature'
     ];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'target_date'
+    ];
+
     protected $casts = [
-        'target_date' => 'date:Y-m-d',
+        'target_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
-   
-
     public function users()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsToMany(User::class, 'announcement_user')
+            ->withTimestamps();
     }
 }

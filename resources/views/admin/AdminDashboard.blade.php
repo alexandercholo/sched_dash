@@ -6,89 +6,109 @@
     <title>Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-scroll {
+            animation: scroll 20s linear infinite;
+            backface-visibility: hidden;
+            perspective: 1000px;
+            transform: translateZ(0);
+            animation-play-state: running !important;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .date-container {
+            grid-column: span 2;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .schedule-container {
+            grid-column: span 2;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .announcements-container {
+            grid-column: span 3;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .content-section {
+            padding: 1.5rem;
+            height: 100%;
+        }
+
+        .date-display {
+            background: linear-gradient(rgba(0, 150, 0, 0.1), rgba(0, 150, 0, 0.1));
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .announcement-slide img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .announcement-slide {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: none;
+        }
+
+        .announcement-slide:not(.hidden) {
+            opacity: 1;
+            display: block;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
-    @include('layouts\admin') 
-
-
-    <!-- Main Content -->
-    <main class="px-2 py-8">
-        <div class="grid gap-4 md:grid-cols-7">
-            <!-- Stats/Charts Container -->
-            <div class="bg-white rounded-lg shadow-sm md:col-span-2">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Statistics</h3>
-                    </div>
-                    <!-- Sample Stats Cards -->
-                    <div class="space-y-4">
-                        <div class="p-4 bg-blue-50 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-blue-600 font-medium">Total Students</p>
-                                    <h4 class="text-2xl font-bold text-blue-700">1,234</h4>
-                                </div>
-                                <div class="p-2 bg-blue-100 rounded-full">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-green-600 font-medium">Active Courses</p>
-                                    <h4 class="text-2xl font-bold text-green-700">42</h4>
-                                </div>
-                                <div class="p-2 bg-green-100 rounded-full">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Sample Chart Container -->
-                        <div class="mt-6 h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                            <p class="text-gray-500">Chart Placeholder</p>
-                        </div>
-                    </div>
+@include('layouts\admin') 
+    <!-- Fixed Navigation Bar -->
+    <nav class="bg-white border-b fixed top-0 left-0 right-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <h1 class="text-gray-900 text-xl font-bold"></h1>
                 </div>
             </div>
+        </div>
+    </nav>
 
-            <!-- Schedule Container -->
-            <div class="bg-white rounded-lg shadow-sm md:col-span-2">
+    <!-- Adjust main content padding to account for fixed navbar -->
+    <main class="px-2 py-8 mt-16">
+        <div class="dashboard-grid">
+            <!-- Schedule Container (moved up) -->
+            <div class="schedule-container">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900">Schedules</h3>
                     </div>
                     
-                    <!-- Real-time date display -->
-                    <div class="text-center mb-6 p-4 border border-green-500 rounded-lg relative overflow-hidden">
-                        <!-- Background Image with Blur -->
-                        <div class="absolute inset-0 z-0">
-                            <img src="{{ asset('images/backgrounds/cas (4).png') }}" alt="" class="w-full h-full object-cover"/>
-                            <div class="absolute inset-0 backdrop-blur-[7px] bg-green-500/25"></div>
-                        </div>
-                        
-                        <!-- Content (with z-index to appear above the background) -->
-                        <div class="relative z-10 flex flex-col items-center">
-                            <!-- Day of Week -->
-                            <div class="text-2xl font-medium text-black mb-1" id="scheduleCurrentDay">Wednesday</div>
-                            
-                            <!-- Time with small AM/PM -->
-                            <div class="flex items-center gap-1 mb-2">
-                                <div class="text-5xl font-bold text-black" id="scheduleCurrentTime">09:40</div>
-                            </div>
-                            
-                            <!-- Date -->
-                            <div class="text-sm font-medium text-black" id="scheduleCurrentMonth">December 4</div>
-                            <div class="text-sm font-medium text-black" id="scheduleCurrentYear">2024</div>
-                        </div>
-                    </div>
-
                     <div class="space-y-4">
                         @foreach($scheduleEvents as $event)
                             <!-- Schedule Item -->
@@ -165,86 +185,111 @@
                 </div>
             </div>
 
-            <!-- Announcements Container -->
-            <div class="bg-white rounded-lg shadow-sm md:col-span-3">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Announcements</h3>
-                        
-                    </div>
-                    <div class="relative h-96"> <!-- Increased height to accommodate media -->
-                        <!-- Announcement Slideshow -->
-                        <div class="announcement-slideshow">
-                            <!-- Announcement 1 -->
-                            <div class="announcement-slide bg-white rounded-lg border border-gray-100">
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <img src="/api/placeholder/800/400" alt="" class="w-full h-48 bg-green-100 object-cover rounded-t-lg"/>
-                                </div>
-                                <div class="p-6">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">All Colleges</span>
-                                        <span class="text-xs text-gray-500">Posted: Oct 23, 2024</span>
-                                    </div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Library Hours Update</h4>
-                                    <p class="text-sm text-gray-600">The library will have extended hours during the final examination period.</p>
-                                </div>
+            <!-- Date Container (moved down) -->
+            <div class="date-container">
+                <div class="content-section">
+                    <div class="date-display">
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div class="text-2xl font-medium text-black mb-1" id="currentDay">Wednesday</div>
+                            <div class="flex items-center gap-1 mb-2">
+                                <div class="text-5xl font-bold text-black" id="currentTime">09:40</div>
+                                <div class="text-xl font-medium text-black" id="currentPeriod">AM</div>
                             </div>
-
-                            <!-- Announcement 2 -->
-                            <div class="announcement-slide bg-white rounded-lg border border-gray-100 hidden">
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <img src="/api/placeholder/800/400" alt="" class="w-full h-48 bg-green-100 object-cover rounded-t-lg"/>
-                                </div>
-                                <div class="p-6">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">Important</span>
-                                        <span class="text-xs text-gray-500">Posted: Oct 24, 2024</span>
-                                    </div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Campus Network Maintenance</h4>
-                                    <p class="text-sm text-gray-600">Scheduled network maintenance this Saturday.</p>
-                                </div>
-                            </div>
-
-                            <!-- Announcement 3 -->
-                            <div class="announcement-slide bg-white rounded-lg border border-gray-100 hidden">
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <img src="/api/placeholder/800/400" alt="" class="w-full h-48  object-cover bg-green-100 rounded-t-lg"/>
-                                </div>
-                                <div class="p-6">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Event</span>
-                                        <span class="text-xs text-gray-500">Posted: Oct 25, 2024</span>
-                                    </div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Campus Career Fair</h4>
-                                    <p class="text-sm text-gray-600">Join us for the annual Career Fair on November 15th.</p>
-                                </div>
-                            </div>
+                            <div class="text-sm font-medium text-black" id="currentMonth">December 4</div>
+                            <div class="text-sm font-medium text-black" id="currentYear">2024</div>
                         </div>
+                    </div>
 
-                        <!-- Navigation Dots -->
-                        <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
-                            <button class="w-2 h-2 rounded-full bg-blue-600" onclick="showSlide(0)"></button>
-                            <button class="w-2 h-2 rounded-full bg-gray-300" onclick="showSlide(1)"></button>
-                            <button class="w-2 h-2 rounded-full bg-gray-300" onclick="showSlide(2)"></button>
+                    <!-- Reminder Section -->
+                    <div class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-3">Todays Reminders</h4>
+                        <div class="space-y-3">
+                            @foreach($announcements as $announcement)
+                                @if(!$announcement->media_path)
+                                    <div class="flex gap-2 text-sm">
+                                        <i class="fas fa-bell text-yellow-500 mt-1"></i>
+                                        <div>
+                                            <div class="text-gray-800 font-medium">
+                                                {{ $announcement->title }} - {{ $announcement->target_date->format('g:i A') }}
+                                            </div>
+                                            <p class="text-gray-600 mt-1">{{ $announcement->content }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Announcements Container -->
+            <div class="announcements-container">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Announcements</h3>
+                    </div>
+                    <div class="relative h-[500px]">
+                        <!-- Announcement Slideshow -->
+                        <div class="announcement-slideshow h-full">
+                            @php
+                                $mediaAnnouncements = $announcements->filter(function($announcement) {
+                                    return !empty($announcement->media_path);
+                                });
+                            @endphp
+                            
+                            @foreach($mediaAnnouncements as $index => $announcement)
+                                <div class="announcement-slide bg-white rounded-lg border border-gray-100 h-full {{ $index === 0 ? '' : 'hidden' }}">
+                                    <div class="w-full relative" style="padding-top: 56.25%;">
+                                        @if($announcement->media_path)
+                                            @if(str_starts_with($announcement->media_type, 'image'))
+                                                <img src="{{ asset('storage/' . $announcement->media_path) }}" 
+                                                     alt="Announcement media"
+                                                     class="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"/>
+                                            @elseif(str_starts_with($announcement->media_type, 'video'))
+                                                <video class="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" controls>
+                                                    <source src="{{ asset('storage/' . $announcement->media_path) }}" 
+                                                            type="{{ $announcement->media_type }}">
+                                                </video>
+                                            @endif
+                                        @else
+                                            <img src="{{ asset('images/placeholder.jpg') }}" 
+                                                 alt="Default announcement image"
+                                                 class="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"/>
+                                        @endif
+                                    </div>
+                                    <div class="p-6">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-bullhorn text-green-600"></i>
+                                            </div>
+                                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                                {{ $announcement->program }}
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                Posted: {{ $announcement->created_at->format('M d, Y') }}
+                                            </span>
+                                        </div>
+                                        <h4 class="font-medium text-gray-900 mb-2">{{ $announcement->title }}</h4>
+                                        <p class="text-sm text-gray-600">{{ $announcement->content }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Navigation Dots -->
+                        <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+                            @foreach($mediaAnnouncements as $index => $announcement)
+                                <button class="w-2 h-2 rounded-full {{ $index === 0 ? 'bg-blue-600' : 'bg-gray-300' }}" 
+                                        onclick="showSlide({{ $index }})">
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logo Carousel -->
+            
         </div>
     </main>
 
@@ -254,21 +299,24 @@
         function updateDateTime() {
             const now = new Date();
             
-            // Update Time
-            const timeElement = document.getElementById('currentTime');
-            timeElement.textContent = now.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit'
-            });
+            // Update Day
+            document.getElementById('currentDay').textContent = 
+                now.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            // Update Time and Period
+            const hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = String(hours % 12 || 12).padStart(2, '0');
+            
+            document.getElementById('currentTime').textContent = `${displayHours}:${minutes}`;
+            document.getElementById('currentPeriod').textContent = period;
             
             // Update Date
-            const dateElement = document.getElementById('currentDate');
-            dateElement.textContent = now.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric'
-            });
+            document.getElementById('currentMonth').textContent = 
+                now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+            document.getElementById('currentYear').textContent = 
+                now.getFullYear();
         }
 
         // Update immediately and then every second
@@ -279,47 +327,84 @@
         let currentSlide = 0;
         const slides = document.querySelectorAll('.announcement-slide');
         const dots = document.querySelectorAll('.bottom-2 button');
+        let slideTimer;
 
         function showSlide(n) {
-            slides.forEach(slide => slide.classList.add('hidden'));
-            dots.forEach(dot => dot.classList.replace('bg-blue-600', 'bg-gray-300'));
+            // Handle array bounds
+            if (n >= slides.length) n = 0;
+            if (n < 0) n = slides.length - 1;
             
-            slides[n].classList.remove('hidden');
-            dots[n].classList.replace('bg-gray-300', 'bg-blue-600');
+            // Clear existing timer
+            if (slideTimer) clearTimeout(slideTimer);
+            
+            // Hide all slides and reset videos
+            slides.forEach((slide, index) => {
+                slide.style.display = 'none';
+                slide.classList.add('hidden');
+                const video = slide.querySelector('video');
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+            
+            // Update dots
+            dots.forEach(dot => {
+                dot.classList.remove('bg-blue-600');
+                dot.classList.add('bg-gray-300');
+            });
+            
+            // Show current slide
             currentSlide = n;
-        }
-
-        function nextSlide() {
-            let next = currentSlide + 1;
-            if (next >= slides.length) {
-                next = 0;
+            slides[currentSlide].style.display = 'block';
+            slides[currentSlide].classList.remove('hidden');
+            dots[currentSlide].classList.remove('bg-gray-300');
+            dots[currentSlide].classList.add('bg-blue-600');
+            
+            // Handle media content
+            const currentSlideElement = slides[currentSlide];
+            const video = currentSlideElement.querySelector('video');
+            
+            if (video) {
+                // For videos
+                video.play().catch(e => console.log('Video playback failed:', e));
+                video.onended = () => {
+                    showSlide(currentSlide + 1);
+                };
+            } else {
+                // For images, advance after 5 seconds
+                slideTimer = setTimeout(() => {
+                    showSlide(currentSlide + 1);
+                }, 5000);
             }
-            showSlide(next);
         }
 
-        // Auto advance slides every 5 seconds
-        setInterval(nextSlide, 5000);
-
-        // Add slide animations
-        slides.forEach(slide => {
-            slide.style.transition = 'opacity 0.5s ease-in-out';
+        // Initialize slideshow when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (slides.length > 0) {
+                // Set initial display state for all slides
+                slides.forEach((slide, index) => {
+                    slide.style.display = index === 0 ? 'block' : 'none';
+                });
+                showSlide(0);
+            }
         });
 
-        // Add fade effect
-        const slideStyles = document.createElement('style');
-        slideStyles.textContent = `
-            .announcement-slide {
-                opacity: 0;
-                transition: opacity 0.5s ease-in-out;
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (slideTimer) clearTimeout(slideTimer);
+                const currentVideo = slides[currentSlide].querySelector('video');
+                if (currentVideo) currentVideo.pause();
+            } else {
+                const currentVideo = slides[currentSlide].querySelector('video');
+                if (currentVideo) {
+                    currentVideo.play().catch(e => console.log('Video playback failed:', e));
+                } else {
+                    showSlide(currentSlide);
+                }
             }
-            .announcement-slide:not(.hidden) {
-                opacity: 1;
-            }
-            .announcement-slide.hidden {
-                display: none;
-            }
-        `;
-        document.head.appendChild(slideStyles);
+        });
 
         // Update Schedule Date Display
         function updateScheduleDateTime() {
@@ -347,6 +432,8 @@
         // Update immediately and then every second
         updateScheduleDateTime();
         setInterval(updateScheduleDateTime, 1000);
+
+       
     </script>
 </body>
 </html>
